@@ -3,6 +3,8 @@
   #include <vector>
   #include <set>
 
+  #include "parser.hpp"
+
   struct token {
     std::string lexeme;
     std::string category;
@@ -31,50 +33,63 @@
 [ \t\n]*      /* Ignore whitespace. */
 
 [a-z][0-9]? {
-  save_token(yytext, "IDENTIFIER");
-  ids.insert(yytext);
+  // save_token(yytext, "IDENTIFIER");
+  // ids.insert(yytext);
+  yylval.str = new std::string(yytext, yyleng);
+  return IDENTIFIER;
 }
 
 [0-9]+("."[0-9]+)? {
-  save_token(yytext, "NUMBER");
+  yylval.val = atof(yytext);
+  return NUMBER;
 }
 
 "=" {
-  save_token(yytext, "EQUALS");
+  yylval.category = EQUALS;
+  return EQUALS;
 }
 
 "+" {
-  save_token(yytext, "PLUS");
+  yylval.category = PLUS;
+  return PLUS;
 }
 
 "-" {
-  save_token(yytext, "MINUS");
+  yylval.category = MINUS;
+  return MINUS;
 }
 
 "*" {
-  save_token(yytext, "TIMES");
+  yylval.category = TIMES;
+  return TIMES;
 }
 
 "/" {
-  save_token(yytext, "DIVIDEDBY");
+  yylval.category = DIVIDEDBY;
+  return DIVIDEDBY;
 }
 
 ";" {
-  save_token(yytext, "SEMICOLON");
+  yylval.category = SEMICOLON;
+  return SEMICOLON;
 }
 
 "(" {
-  save_token(yytext, "LPAREN");
+  yylval.category = LPAREN;
+  return LPAREN;
 }
 
 ")" {
-  save_token(yytext, "RPAREN");
+  yylval.category = RPAREN;
+  return RPAREN;
 }
 
 . {
   std::cerr << "Invalid symbol on line " << yylineno
     << ": " << yytext << std::endl;
-  have_error = true;
+  // have_error = true;
+  yylval.category = yytext[0];
+  return yytext[0];
 }
 
 <<EOF>> {
