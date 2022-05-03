@@ -19,7 +19,6 @@
 %token <val> NUMBER
 %token <category> EQUALS PLUS MINUS TIMES DIVIDEDBY
 %token <category> SEMICOLON LPAREN RPAREN
-%token <category> IF ELSE COLON
 
 %type <val> expression
 
@@ -32,6 +31,9 @@
 
 %define parse.error verbose
 
+%define api.push-pull push
+%define api.pure full
+
 %%
 
 program
@@ -40,22 +42,7 @@ program
     ;
 
 statement
-    : assignmentStatement
-    | ifStatement
-    ;
-
-assignmentStatement
     : IDENTIFIER EQUALS expression SEMICOLON { symbols[*$1] = $3; delete $1; }
-    ;
-
-ifStatement
-    : IF expression COLON statement
-    | IF expression COLON closedStatement ELSE COLON statement
-    ;
-
-closedStatement
-    : assignmentStatement
-    | IF expression COLON closedStatement ELSE COLON closedStatement
     ;
 
 expression
@@ -75,7 +62,7 @@ void yyerror(const char* err) {
 }
 
 int main() {
-    if (!yyparse()) {
+    if (!yylex()) {
         std::map<std::string, float>::iterator it;
         for (it = symbols.begin(); it != symbols.end(); it++) {
             std::cout << it->first << " : " << it->second << std::endl;
